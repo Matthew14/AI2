@@ -10,6 +10,7 @@ import numpy as np
 from functools import wraps
 from collections import OrderedDict
 
+
 #function wrapper to check first parameter of a func is a file that exists
 def check_file_exists(f):
     @wraps(f)
@@ -41,7 +42,10 @@ def is_numeric(in_string):
         return False
 
 
-
+"""
+Takes a list and returns a dict containing each unique value mapped to the
+number of times it appears
+"""
 def into_dict(the_list):
     counts = dict()
     counts['?'] = 0
@@ -52,9 +56,12 @@ def into_dict(the_list):
     return counts
 
 
+"""
+returns  ((mode, occurences), count('?'))
+if second kwarg is True, returns second mode
+"""
 def mode(the_list, second=False):
     counts = into_dict(the_list)
-
     maximum = ('', 1)
     second_maximum = ('',1)
 
@@ -67,6 +74,11 @@ def mode(the_list, second=False):
     return (second_maximum if second else maximum, counts['?'])
 
 
+"""
+takes a numpy 2d array and identifies which columns are categorical and
+which are continuous
+returns (cat indexes, cont indexes)
+"""
 def identify_cont_and_cat(data_set):
     cont_and_cats = dict()
     cont = 'continuous'
@@ -91,7 +103,6 @@ def identify_cont_and_cat(data_set):
 
 
 def output_report(feature_dict, outfile):
-
     with open(outfile, 'w') as f:
         writer = csv.writer(f)
         headings = ['FEATURENAME']
