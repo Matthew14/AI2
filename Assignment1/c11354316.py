@@ -14,7 +14,7 @@ from functools import wraps
 def check_file_exists(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if len(args) > 0 and not os.path.isfile(args[0]):
+        if len(args) < 1 or not os.path.isfile(args[0]):
             raise IOError('file doesn\'t exist')
         return f(*args, **kwargs)
     return decorated_function
