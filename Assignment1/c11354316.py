@@ -41,6 +41,32 @@ def is_numeric(in_string):
         return False
 
 
+
+def into_dict(the_list):
+    counts = dict()
+    counts['?'] = 0
+    for value in the_list:
+        if value.strip() not in counts.keys():
+            counts[value.strip()] = 0
+        counts[value.strip()] += 1
+    return counts
+
+
+def mode(the_list, second=False):
+    counts = into_dict(the_list)
+
+    maximum = ('', 1)
+    second_maximum = ('',1)
+
+    for k,v in counts.items():
+
+        if k.strip() != '?' and v > maximum[1]:
+            second_maximum = maximum
+            maximum = k, v
+
+    return (second_maximum if second else maximum, counts['?'])
+
+
 def identify_cont_and_cat(data_set):
     cont_and_cats = dict()
     cont = 'continuous'
@@ -111,15 +137,39 @@ def create_and_output_cont_report(data_set, conts, feature_names):
         feature_dict[feature_name]['no_distinct'] = len(np.unique(non_zero_col))
         feature_dict[feature_name]['percent_missing'] = (feature_dict[feature_name]['missing_vals'] * 100) / len(col)
 
+        del feature_dict[feature_name]['missing_vals']
+
     output_report(feature_dict, outfile)
 
 
 def create_and_output_cat_report(data_set, cats, feature_names):
     outfile = './data/c11354316CAT.csv'
+    data_set_len = len(data_set)
+    feature_dict = OrderedDict()
 
     for feature in cats:
         feature_name = feature_names[feature]
 
+        feature_dict[feature_name] = OrderedDict()
+        feature_dict[feature_name]['missing_vals'] = 0
+
+        col = np.array(data_set[:, feature] )
+
+        first_mode, count_missing = mode(col.tolist())
+        second_mode = mode(col.tolist(), second=True)[0]
+
+        feature_dict[feature_name]['mode'] = first_mode[0]
+        feature_dict[feature_name]['mode_count'] = first_mode[1]
+        feature_dict[feature_name]['mode_percentage'] = (first_mode[1]*100)/len(col)
+        feature_dict[feature_name]['2nd_mode'] = second_mode[0]
+        feature_dict[feature_name]['2nd_mode_count'] = second_mode[1]
+        feature_dict[feature_name]['2nd_mode_percentage'] = (second_mode[1]*100)/len(col)
+        feature_dict[feature_name]['missing_percent'] = (count_missing *100) / len(col)
+        feature_dict[feature_name]['cadinality'] = len(into_dict(col).keys()) - (1 if count_missing > 0 else 0)
+
+        del feature_dict[feature_name]['missing_vals']
+
+    output_report(feature_dict, outfile)
 
 
 if __name__ == "__main__":
