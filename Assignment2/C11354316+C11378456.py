@@ -1,6 +1,6 @@
 '''
 Artificial Inteligence 2 Assignment
-Matthew O'Neill / C11354316 + Colin Delaney / numberhere
+Matthew O'Neill / C11354316 + Colin Delaney / C11378456
 '''
 
 import os
@@ -19,3 +19,4 @@ if not os.path.isfile(queries_file_path) or not os.path.isfile(training_set_file
 
 if __name__ == '__main__':
     pass
+
