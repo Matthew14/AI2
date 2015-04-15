@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import math
 from sklearn.feature_extraction import DictVectorizer
+from sklearn import tree
+from sklearn import cross_validation
 
 #globals
 data_dir ="data"
@@ -52,9 +54,12 @@ if __name__ == '__main__':
     queries_df = pd.read_csv(queries_file_path, names=headings)
     numeric_cols = training_df[numeric_headings]
     cat_df = training_df.drop(numeric_cols, axis=1)
-    cat_df.T.to_dict().values()
 
-    vectorizer = DictVectorizer( sparse = False )
-    vec_cat_dfs = vectorizer.fit_transform(cat_df)
     # Merge Categorical and Numeric Descriptive Features
-    train_dfs = np.hstack((numeric_dfs.as_matrix(), vec_cat_dfs ))
+    # train_dfs = np.hstack((numeric_dfs.as_matri
+
+    decTreeModel = tree.DecisionTreeClassifier(criterion='entropy')
+
+    decTreeModel.fit(training_df, training_df['Cover_Type'])
+
+    predictions = decTreeModel.predict([query[0],query[1]])
