@@ -50,33 +50,41 @@ if __name__ == '__main__':
     numeric_headings = headings[:headings.index('Horizontal_Distance_To_Fire_Points') + 1]
     numeric_headings.pop(0)
 
-    training_df =  pd.read_csv(training_set_file_path, names=headings)
-    queries_df = pd.read_csv(queries_file_path, names=headings)
-    numeric_cols = training_df[numeric_headings]
-    cat_df = training_df.drop(numeric_cols, axis=1)
-    cat_df = cat_df.head()
-
-
-
     vectorizer = DictVectorizer( sparse = False )
-    cat_df = cat_df.T.to_dict().values()
-
-    vec_cat_dfs = vectorizer.fit_transform(cat_df)
-
-    numeric_matrix = numeric_cols.as_matrix()
-
-    train_dfs = np.hstack((numeric_matrix, vec_cat_dfs))
-
     decTreeModel = tree.DecisionTreeClassifier(criterion='entropy')
-    decTreeModel.fit(train_dfs, training_df['Cover_Type'])
 
-    query = np.hstack((q_num, q_vec_dfs ))
+    indexes = [0, 10000, 20000]
+    i = 0
 
-    q_cat = qdf.drop(numeric_features,axis=1)
+    for value in range(len(indexes)) :
+
+        if (i + 1) == len(indexes) :
+            break
+
+        training_df = pd.read_csv(training_set_file_path, names=headings, nrows=indexes[i + 1], skiprows=value)
+        i = i + 1
+
+        numeric_cols = training_df[numeric_headings]
+        cat_df = training_df.drop(numeric_cols, axis=1)
+
+        cat_dic = cat_df.T.to_dict().values()
+
+        cat_array = vectorizer.fit_transform(cat_dic)
+
+        numeric_matrix = numeric_cols.as_matrix()
+
+        train_dfs = np.hstack((numeric_matrix, cat_array))
+
+        decTreeModel.fit(train_dfs, training_df['Cover_Type'])
+        training_df = None
+        train_dfs = None
+
+    queries_df = pd.read_csv(queries_file_path, names=headings, nrows=3)
+    q_num = queries_df[numeric_headings].as_matrix()
+
+    q_cat = queries_df.drop(numeric_headings, axis=1)
     q_cat_dfs = q_cat.T.to_dict().values()
     q_vec_dfs = vectorizer.transform(q_cat_dfs)
 
-
-
-
+    query = np.hstack((q_num, q_vec_dfs ))
     predictions = decTreeModel.predict([query[0],query[1]])
