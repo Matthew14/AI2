@@ -53,7 +53,7 @@ if __name__ == '__main__':
     vectorizer = DictVectorizer( sparse = False )
     decTreeModel = tree.DecisionTreeClassifier(criterion='entropy')
 
-    training_df = pd.read_csv(training_set_file_path, names=headings)
+    training_df = pd.read_csv(training_set_file_path, names=headings, nrows = 5000)
 
     numeric_cols = training_df[numeric_headings]
     cat_df = training_df.drop(numeric_cols, axis=1)
@@ -72,12 +72,16 @@ if __name__ == '__main__':
     train_dfs = None
     cat_dic = None
 
-    queries_df = pd.read_csv(queries_file_path, names=headings, nrows=3)
+    queries_df = pd.read_csv(queries_file_path, names=headings, nrows=100)
     q_num = queries_df[numeric_headings].as_matrix()
 
     q_cat = queries_df.drop(numeric_headings, axis=1)
     q_cat_dfs = q_cat.T.to_dict().values()
     q_vec_dfs = vectorizer.transform(q_cat_dfs)
 
-    query = np.hstack((q_num, q_vec_dfs ))
-    predictions = decTreeModel.predict([query[0],query[1]])
+    queries = np.hstack((q_num, q_vec_dfs ))
+    
+    predictions = []
+
+    for query in queries :
+        predictions.append(decTreeModel.predict([query]))
