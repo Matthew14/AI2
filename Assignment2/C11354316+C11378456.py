@@ -53,31 +53,24 @@ if __name__ == '__main__':
     vectorizer = DictVectorizer( sparse = False )
     decTreeModel = tree.DecisionTreeClassifier(criterion='entropy')
 
-    indexes = [0, 10000, 20000]
-    i = 0
+    training_df = pd.read_csv(training_set_file_path, names=headings)
 
-    for value in range(len(indexes)) :
+    numeric_cols = training_df[numeric_headings]
+    cat_df = training_df.drop(numeric_cols, axis=1)
 
-        if (i + 1) == len(indexes) :
-            break
+    cat_dic = cat_df.T.to_dict().values()
 
-        training_df = pd.read_csv(training_set_file_path, names=headings, nrows=indexes[i + 1], skiprows=value)
-        i = i + 1
+    cat_array = vectorizer.fit_transform(cat_dic)
 
-        numeric_cols = training_df[numeric_headings]
-        cat_df = training_df.drop(numeric_cols, axis=1)
+    numeric_matrix = numeric_cols.as_matrix()
 
-        cat_dic = cat_df.T.to_dict().values()
+    train_dfs = np.hstack((numeric_matrix, cat_array))
 
-        cat_array = vectorizer.fit_transform(cat_dic)
-
-        numeric_matrix = numeric_cols.as_matrix()
-
-        train_dfs = np.hstack((numeric_matrix, cat_array))
-
-        decTreeModel.fit(train_dfs, training_df['Cover_Type'])
-        training_df = None
-        train_dfs = None
+    decTreeModel.fit(train_dfs, training_df['Cover_Type'])
+    
+    training_df = None
+    train_dfs = None
+    cat_dic = None
 
     queries_df = pd.read_csv(queries_file_path, names=headings, nrows=3)
     q_num = queries_df[numeric_headings].as_matrix()
