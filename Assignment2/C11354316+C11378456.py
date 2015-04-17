@@ -54,12 +54,29 @@ if __name__ == '__main__':
     queries_df = pd.read_csv(queries_file_path, names=headings)
     numeric_cols = training_df[numeric_headings]
     cat_df = training_df.drop(numeric_cols, axis=1)
+    cat_df = cat_df.head()
 
-    # Merge Categorical and Numeric Descriptive Features
-    # train_dfs = np.hstack((numeric_dfs.as_matri
+
+
+    vectorizer = DictVectorizer( sparse = False )
+    cat_df = cat_df.T.to_dict().values()
+
+    vec_cat_dfs = vectorizer.fit_transform(cat_df)
+
+    numeric_matrix = numeric_cols.as_matrix()
+
+    train_dfs = np.hstack((numeric_matrix, vec_cat_dfs))
 
     decTreeModel = tree.DecisionTreeClassifier(criterion='entropy')
+    decTreeModel.fit(train_dfs, training_df['Cover_Type'])
 
-    decTreeModel.fit(training_df, training_df['Cover_Type'])
+    query = np.hstack((q_num, q_vec_dfs ))
+
+    q_cat = qdf.drop(numeric_features,axis=1)
+    q_cat_dfs = q_cat.T.to_dict().values()
+    q_vec_dfs = vectorizer.transform(q_cat_dfs)
+
+
+
 
     predictions = decTreeModel.predict([query[0],query[1]])
