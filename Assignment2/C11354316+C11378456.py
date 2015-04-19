@@ -34,7 +34,7 @@ def load_csv(fp, cols, dtype=np.float32):
     return np.genfromtxt(fp, delimiter=',', usecols=cols, dtype=dtype)
 
 
-if __name__ == '__main__':
+def main():
     setup_files()
 
     #the training data minus id and type:
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     q_id = load_csv(queries_file_path, 0, dtype=np.dtype((str, 10)))
 
 
-    #fit data above to DTC and predict it
+    #fit data above to DTC and predict import
     model = tree.DecisionTreeClassifier(criterion='entropy')
     model.fit(t_num_data, t_type_col)
     predictions = model.predict(q_data)
@@ -57,3 +57,7 @@ if __name__ == '__main__':
     with open(solutions_file_path, 'w') as f:
         for i in range(len(predictions)):
             f.write("{},{}\n".format(q_id[i], predictions[i]))
+
+
+if __name__ == '__main__':
+    main()
